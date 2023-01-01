@@ -22,7 +22,12 @@ def get_args_at_state(state: SimState,
             for arg in args]
 
 
-def get_inputs_for_paths(program: str, num_args: int, bytes_per_arg: int):
+Inputs = Sequence[Tuple[SimState, Sequence[Tuple[str, bytes]]]]
+
+
+def get_inputs_for_paths(program: str,
+                         num_args: int,
+                         bytes_per_arg: int) -> Inputs:
     project = Project(program)
 
     # Get the entry point of the program and start the analysis there.
@@ -52,7 +57,7 @@ def get_inputs_for_paths(program: str, num_args: int, bytes_per_arg: int):
     return state_inputs
 
 
-def dump_found_inputs(state_inputs):
+def dump_found_inputs(state_inputs: Inputs):
     print('Found {} paths'.format(len(state_inputs)))
     print('Proceeding to print outputs.\n')
     for i, (state, inputs) in enumerate(state_inputs):
