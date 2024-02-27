@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from angr import Project, SimState
+from angr import Project, SimState, options as angroptions
 from claripy import BVS
 from claripy.ast.bv import BV
 
@@ -42,7 +42,8 @@ def get_inputs_for_paths(program: str,
     symbolic_args = [BVS('arg{}'.format(arg_num + 1), 8*bytes_per_arg)
                      for arg_num in range(num_args)]
     args = [program] + symbolic_args
-    state = project.factory.full_init_state(args=args)
+    state = project.factory.entry_state(args=args)
+    state.options.add(angroptions.SYMBOL_FILL_UNCONSTRAINED_MEMORY)
 
     # The simulation manager provides an interface to control the symbolic
     # execution decisions and how we explore, prioritize, merge, and split
@@ -57,7 +58,7 @@ def get_inputs_for_paths(program: str,
     return state_inputs
 
 
-def dump_found_inputs(state_inputs: Inputs):
+def dump_found_inputs(state_inputs: Inputs) -> None:
     print('Found {} paths'.format(len(state_inputs)))
     print('Proceeding to print outputs.\n')
     for i, (state, inputs) in enumerate(state_inputs):
@@ -75,7 +76,7 @@ def dump_found_inputs(state_inputs: Inputs):
         print()
 
 
-if __name__ == '__main__':
+def main() -> None:
     PROGRAM = 'bin/simplepaths'
     NUM_ARGS = 3
     NUM_BYTES = 2
@@ -83,3 +84,7 @@ if __name__ == '__main__':
 
     state_inputs = get_inputs_for_paths(PROGRAM, NUM_ARGS, NUM_BYTES)
     dump_found_inputs(state_inputs)
+
+
+if __name__ == '__main__':
+    main()
